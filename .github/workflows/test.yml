@@ -99,7 +99,8 @@ jobs:
         run: echo "# CACHE BUSTER: $(date +%s)" >> requirements.txt  
 
       - name: Build image
-        run: docker build -t app:test .
+        # ADDITION: --no-cache flag to completely bypass Docker layer caching
+        run: docker build --no-cache -t app:test .
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master

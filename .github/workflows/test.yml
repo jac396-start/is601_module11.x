@@ -37,6 +37,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          # Install development files for Python and PostgreSQL
+          sudo apt-get install -y python3-dev gcc libpq-dev     
+
       - name: Install dependencies
         env:
           DATABASE_URL: postgresql://user:password@localhost:5432/mytestdb
@@ -47,9 +53,6 @@ jobs:
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt --no-cache-dir
-          echo "--- Installed Python Packages ---"
-          pip freeze
-          echo "---------------------------------"
           playwright install  # if you use Playwright for e2e tests
       
       - name: Run tests

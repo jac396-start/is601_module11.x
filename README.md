@@ -2,6 +2,9 @@
 
 ---
 
+To run the code follow the instructions for seting up you system or systems to run the software. Once you get Ubuntu setup for your primary terminal use, this is after the Liunux login, you'll be ready to clone the repository to your local device. Begin by setup up and activating the virtual environment or (venv) next installing the requirements file following the instructions below. The your ready to ruun main.py to activate and participate in the software functionality. 
+
+
 # 🧩 1. Install Homebrew (Mac Only)
 
 > Skip this step if you're on Windows.

@@ -4,8 +4,9 @@ import uuid
 from typing import Optional, Dict, Any
 
 from sqlalchemy import Column, String, DateTime, Boolean
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import relationship
+from sqlalchemy import String
+from app.database import Base
 from sqlalchemy.exc import IntegrityError
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -14,7 +15,6 @@ from pydantic import ValidationError
 from app.schemas.base import UserCreate
 from app.schemas.user import UserResponse, Token
 
-Base = declarative_base()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -26,7 +26,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
     email = Column(String(120), unique=True, nullable=False)
@@ -37,6 +37,13 @@ class User(Base):
     last_login = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationship to calculations created by this user
+    calculations = relationship(
+        "Calculation",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self):
         return f"<User(name={self.first_name} {self.last_name}, email={self.email})>"
@@ -59,12 +66,12 @@ class User(Base):
         return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
     @staticmethod
-    def verify_token(token: str) -> Optional[UUID]:
+    def verify_token(token: str) -> Optional[str]:
         """Verify and decode a JWT token."""
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             user_id = payload.get("sub")
-            return uuid.UUID(user_id) if user_id else None
+            return str(uuid.UUID(user_id)) if user_id else None
         except (JWTError, ValueError):
             return None
 

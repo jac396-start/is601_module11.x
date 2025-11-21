@@ -25,7 +25,6 @@ from datetime import datetime
 import uuid
 from typing import List
 from sqlalchemy import Column, String, DateTime, ForeignKey, JSON, Float
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship, declared_attr
 from app.database import Base
 
@@ -52,9 +51,9 @@ class AbstractCalculation:
     def id(cls):
         """Unique identifier for each calculation (UUID for distribution)"""
         return Column(
-            UUID(as_uuid=True),
+            String(36),
             primary_key=True,
-            default=uuid.uuid4,
+            default=lambda: str(uuid.uuid4()),
             nullable=False
         )
 
@@ -67,7 +66,7 @@ class AbstractCalculation:
         Index improves query performance when filtering by user_id.
         """
         return Column(
-            UUID(as_uuid=True),
+            String(36),
             ForeignKey('users.id', ondelete='CASCADE'),
             nullable=False,
             index=True
